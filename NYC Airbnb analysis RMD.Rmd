@@ -1,0 +1,409 @@
+---
+title: "NYC AIRBNB ANALYSIS RMD"
+author: "Malay Raj"
+date: "2023-06-23"
+output:
+  word_document: default
+  html_document: default
+---
+
+## NYC AIRBNB 2019 ANALYSIS:
+
+Since 2008, guests and hosts have used Airbnb to expand on traveling possibilities and present more unique, personalized way of experiencing the world. This dataset describes the listing activity and metrics in NYC, NY for 2019.
+
+## Loading Required Packages.
+
+```{r}
+library(tidyverse)
+library(janitor)
+library(dplyr)
+library(ggplot2)
+library(skimr)
+library(plyr)
+library(lubridate)
+library(scales)
+```
+
+
+## Displaying my current working directory.
+
+```{r}
+getwd()
+```
+
+
+## Collecting the data.
+
+```{r}
+Airbnb = read.csv("C:/New York City Airbnb Analysis/AB_NYC_2019.csv")
+```
+
+
+## Displaying the first six rows of the dataset.
+
+```{r}
+head(Airbnb)
+```
+
+
+## Checking the number of rows and dimension of the dataset.
+
+```{r}
+dim(Airbnb)
+
+nrow(Airbnb)
+```
+
+
+## Displaying the column names of our dataframe.
+
+```{r}
+colnames(Airbnb)
+```
+
+
+## Inspecting the dataframe and look for inconguencies.
+
+```{r}
+str(Airbnb)
+```
+
+
+## Changing the datatype of last_review to date.
+
+```{r}
+Airbnb$last_review <- as.Date(Airbnb$last_review)
+```
+
+
+## Checking if it's changed or not.
+
+```{r}
+str(Airbnb)
+```
+
+
+## Checking for null values in our dataset.
+
+```{r}
+null_sum <- colSums(is.na(Airbnb))
+
+null_sum
+```
+As we can see there are 10052 NA values in last_review and reviews_per_month so, we can't drop the column review_per_month so we will only drop last_review because we don't need it in our analysis.
+
+
+
+## Removing the columns id, host_id and last_review because we don't need it in our analysis.
+
+```{r}
+Airbnb = subset(Airbnb, select = -c(id, host_id, last_review))
+```
+
+
+## Checking the column names which are left for analysis.
+
+```{r}
+colnames(Airbnb)
+```
+
+
+## Filling the missing values in reviews_per_month with 0.
+
+```{r}
+Airbnb$reviews_per_month <- ifelse(is.na(Airbnb$reviews_per_month), 0, Airbnb$reviews_per_month)
+```
+
+
+## Checking if there is any null values in reviews_per_month column is left or not.
+
+```{r}
+sum(is.na(Airbnb$reviews_per_month))
+```
+
+
+## Checking for any duplicate values in our dataset.
+
+
+```{r}
+anyDuplicated(Airbnb)
+```
+
+
+## Seeing how many observations fall under each of these columns.
+
+```{r}
+table(Airbnb$neighbourhood_group)
+table(Airbnb$neighbourhood)
+table(Airbnb$room_type)
+```
+
+## CONDUCTNG DESCRIPTIVE ANALYSIS:
+
+Descriptive analysis on few columns.
+
+```{r}
+summary(Airbnb$price)
+```
+
+
+```{r}
+summary(Airbnb$minimum_nights)
+```
+
+
+```{r}
+summary(Airbnb$number_of_reviews)
+```
+
+
+```{r}
+summary(Airbnb$reviews_per_month)
+```
+
+
+```{r}
+summary(Airbnb$calculated_host_listings_count)
+```
+
+
+```{r}
+summary(Airbnb$availability_365)
+```
+Comparing price, minimum_nights, number_of_reviews, reviews_per_month, calculated_host_listings_count and availability_365 with neighbourhood_group and neighbourhood.
+
+```{r}
+aggregate(Airbnb$price ~ Airbnb$neighbourhood_group, FUN = mean)
+aggregate(Airbnb$price ~ Airbnb$neighbourhood_group, FUN = median)
+aggregate(Airbnb$price ~ Airbnb$neighbourhood_group, FUN = max)
+aggregate(Airbnb$price ~ Airbnb$neighbourhood_group, FUN = min)
+```
+
+
+```{r}
+aggregate(Airbnb$price ~ Airbnb$neighbourhood, FUN = mean)
+aggregate(Airbnb$price ~ Airbnb$neighbourhood, FUN = median)
+aggregate(Airbnb$price ~ Airbnb$neighbourhood, FUN = max)
+aggregate(Airbnb$price ~ Airbnb$neighbourhood, FUN = min)
+```
+
+
+```{r}
+aggregate(Airbnb$minimum_nights ~ Airbnb$neighbourhood_group, FUN = mean)
+aggregate(Airbnb$minimum_nights ~ Airbnb$neighbourhood_group, FUN = median)
+aggregate(Airbnb$minimum_nights ~ Airbnb$neighbourhood_group, FUN = max)
+aggregate(Airbnb$minimum_nights ~ Airbnb$neighbourhood_group, FUN = min)
+```
+
+
+```{r}
+aggregate(Airbnb$minimum_nights ~ Airbnb$neighbourhood, FUN = mean)
+aggregate(Airbnb$minimum_nights ~ Airbnb$neighbourhood, FUN = median)
+aggregate(Airbnb$minimum_nights ~ Airbnb$neighbourhood, FUN = max)
+aggregate(Airbnb$minimum_nights ~ Airbnb$neighbourhood, FUN = min)
+```
+
+
+```{r}
+aggregate(Airbnb$number_of_reviews ~ Airbnb$neighbourhood_group, FUN = mean)
+aggregate(Airbnb$number_of_reviews ~ Airbnb$neighbourhood_group, FUN = median)
+aggregate(Airbnb$number_of_reviews ~ Airbnb$neighbourhood_group, FUN = max)
+aggregate(Airbnb$number_of_reviews ~ Airbnb$neighbourhood_group, FUN = min)
+```
+
+
+```{r}
+aggregate(Airbnb$number_of_reviews ~ Airbnb$neighbourhood, FUN = mean)
+aggregate(Airbnb$number_of_reviews ~ Airbnb$neighbourhood, FUN = median)
+aggregate(Airbnb$number_of_reviews ~ Airbnb$neighbourhood, FUN = max)
+aggregate(Airbnb$number_of_reviews ~ Airbnb$neighbourhood, FUN = min)
+```
+
+
+```{r}
+aggregate(Airbnb$reviews_per_month ~ Airbnb$neighbourhood_group, FUN = mean)
+aggregate(Airbnb$reviews_per_month ~ Airbnb$neighbourhood_group, FUN = median)
+aggregate(Airbnb$reviews_per_month ~ Airbnb$neighbourhood_group, FUN = max)
+aggregate(Airbnb$reviews_per_month ~ Airbnb$neighbourhood_group, FUN = min)
+```
+
+
+```{r}
+aggregate(Airbnb$reviews_per_month ~ Airbnb$neighbourhood, FUN = mean)
+aggregate(Airbnb$reviews_per_month ~ Airbnb$neighbourhood, FUN = median)
+aggregate(Airbnb$reviews_per_month ~ Airbnb$neighbourhood, FUN = max)
+aggregate(Airbnb$reviews_per_month ~ Airbnb$neighbourhood, FUN = min)
+```
+
+
+```{r}
+aggregate(Airbnb$calculated_host_listings_count ~ Airbnb$neighbourhood_group, FUN = mean)
+aggregate(Airbnb$calculated_host_listings_count ~ Airbnb$neighbourhood_group, FUN = median)
+aggregate(Airbnb$calculated_host_listings_count ~ Airbnb$neighbourhood_group, FUN = max)
+aggregate(Airbnb$calculated_host_listings_count ~ Airbnb$neighbourhood_group, FUN = min)
+```
+
+
+```{r}
+aggregate(Airbnb$calculated_host_listings_count ~ Airbnb$neighbourhood, FUN = mean)
+aggregate(Airbnb$calculated_host_listings_count ~ Airbnb$neighbourhood, FUN = median)
+aggregate(Airbnb$calculated_host_listings_count ~ Airbnb$neighbourhood, FUN = max)
+aggregate(Airbnb$calculated_host_listings_count ~ Airbnb$neighbourhood, FUN = min)
+```
+
+
+```{r}
+aggregate(Airbnb$availability_365 ~ Airbnb$neighbourhood_group, FUN = mean)
+aggregate(Airbnb$availability_365 ~ Airbnb$neighbourhood_group, FUN = median)
+aggregate(Airbnb$availability_365 ~ Airbnb$neighbourhood_group, FUN = max)
+aggregate(Airbnb$availability_365 ~ Airbnb$neighbourhood_group, FUN = min)
+```
+
+
+```{r}
+aggregate(Airbnb$availability_365 ~ Airbnb$neighbourhood, FUN = mean)
+aggregate(Airbnb$availability_365 ~ Airbnb$neighbourhood, FUN = median)
+aggregate(Airbnb$availability_365 ~ Airbnb$neighbourhood, FUN = max)
+aggregate(Airbnb$availability_365 ~ Airbnb$neighbourhood, FUN = min)
+```
+
+
+## SUMMARY STATISTICS.
+
+```{r}
+skimr::skim_without_charts(Airbnb)
+```
+
+
+## Finding the top 10 Host names.
+
+```{r}
+Top_10_Hosts <- head(sort(table(Airbnb$host_name), decreasing = TRUE), 10)
+Top_10_Hosts
+```
+
+
+## Converting Top_10_Hosts into dataframe so that we can visualize.
+
+```{r}
+Top_10_Hosts_df <- data.frame(host_name = names(Top_10_Hosts), count = as.numeric(Top_10_Hosts))
+Top_10_Hosts_df
+```
+
+
+Let's visualize it.
+
+```{r}
+ggplot(Top_10_Hosts_df, aes(x = host_name, y = count, fill = host_name)) +
+  geom_bar(stat = 'identity') +
+  labs(title = 'Top 10 hosts of Airbnb 2019') +
+  theme_bw() + 
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))
+```
+
+
+## Now, let's find our the top 10 areas.
+
+```{r}
+Top_10_Areas <- head(sort(table(Airbnb$neighbourhood), decreasing = TRUE), 10)
+Top_10_Areas
+```
+
+
+## Converting Top_10_Areas into dataframe so that we can visualize.
+
+```{r}
+Top_10_Areas <- as.data.frame(Top_10_Areas)
+Top_10_Areas
+```
+
+
+Let's visualize it.
+
+```{r}
+ggplot(Top_10_Areas, aes(x = Var1, y = Freq, fill = Var1)) +
+  geom_bar(stat = 'identity') +
+  labs(x = "Areas") +
+  ggtitle("Count of Unique Hosts by Area") +
+  theme_bw() + 
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))
+```
+
+
+## Let's see which type of rooms does more business in different areas.
+
+```{r}
+sub_7 <- subset(Airbnb, neighbourhood %in% c('Williamsburg','Bedford-Stuyvesant','Harlem','Bushwick',
+                                    'Upper West Side','Hell\'s Kitchen','East Village',
+                                    'Upper East Side','Crown Heights','Midtown'))
+
+viz_3 <- ggplot(sub_7, aes(x = neighbourhood, fill = neighbourhood_group)) +
+  geom_bar(col = 'black') +
+  facet_wrap(~ room_type, ncol = 1) +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))
+
+print(viz_3)
+```
+
+
+## Let's see if longitude and latitude have anything to tell.
+
+```{r}
+ggplot(Airbnb, aes(x = longitude, y = latitude, color = price)) +
+  geom_point(size = 3, alpha = 0.4) +
+  scale_color_continuous(limits = c(0, 500)) +
+  labs(color = "Price") +
+  theme_minimal() +
+  theme(legend.position = "right")
+```
+
+
+## Let's see the count of unique host from different locations.
+
+```{r}
+count_data <- data.frame(neighbourhood_group = unique(Airbnb$neighbourhood_group),
+                         unique_hosts = sapply(unique(Airbnb$neighbourhood_group), 
+                                               function(loc) length(unique(Airbnb$host_name[Airbnb$neighbourhood_group == loc]))))
+ggplot(count_data, aes(x = neighbourhood_group, y = unique_hosts)) +
+  geom_bar(stat = "identity", fill = "steelblue") +
+  labs(x = "Location", y = "Count of Unique Hosts") +
+  ggtitle("Count of Unique Hosts by Location") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+
+## Let's see the total price earned by different locations.
+
+```{r}
+ggplot(Airbnb, aes(x = neighbourhood_group, y = price)) +
+  geom_bar(stat = "identity", fill = "blue") +
+  labs(title = "Sum of Price by Location", x = "Location", y = "Sum of Price") +
+  scale_y_continuous(labels = dollar_format(prefix = "$", big.mark = ",", decimal.mark = ".", suffix = "")) +
+  theme_bw() +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))
+```
+
+
+## Let's see the total reviews got by differnt locations.
+
+```{r}
+ggplot(Airbnb, aes(x = neighbourhood_group, y = number_of_reviews)) +
+  geom_bar(stat = "identity", fill = "blue") +
+  labs(title = "Sum of Number of Reviews by Location", x = "Location", y = "Sum of Number of Reviews") +
+  theme_bw() +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))
+```
+
+
+## Let's check the top 10 areas with most unique host count.
+
+```{r}
+ggplot(Airbnb, aes(x = neighbourhood, y = ..count..)) +
+  geom_bar(stat = "count", fill = "blue") +
+  labs(title = "Areas with Most Unique Hosts") +
+  theme_bw() +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))
+```
+
+
